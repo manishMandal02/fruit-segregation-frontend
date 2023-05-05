@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 
-const BACKEND_URL = 'http://localhost:8000';
+// const BACKEND_URL = 'http://localhost:8000';
+const BACKEND_URL = 'https://b3aa-202-131-143-209.ngrok-free.app';
 
 const App = () => {
   const [cameraStream, setCameraStream] = useState<MediaStream | undefined>(undefined);
