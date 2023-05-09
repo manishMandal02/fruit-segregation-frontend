@@ -7,7 +7,7 @@ const BACKEND_URL = 'https://b3aa-202-131-143-209.ngrok-free.app';
 const App = () => {
   const [cameraStream, setCameraStream] = useState<MediaStream | undefined>(undefined);
 
-  const [shouldClickPhoto, setShouldClickPhoto] = useState(false);
+  const [shouldClickPhoto, setShouldClickPhoto] = useState(true);
   const [videoEl, setVideoEl] = useState<HTMLVideoElement | null>(null);
 
   //
