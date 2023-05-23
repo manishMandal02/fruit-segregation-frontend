@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 
-// const BACKEND_URL = 'http://localhost:8000';
-const BACKEND_URL = 'https://b3aa-202-131-143-209.ngrok-free.app';
+const BACKEND_URL = 'http://localhost:7000';
 
 const App = () => {
   const [cameraStream, setCameraStream] = useState<MediaStream | undefined>(undefined);
 
   const [shouldClickPhoto, setShouldClickPhoto] = useState(false);
   const [videoEl, setVideoEl] = useState<HTMLVideoElement | null>(null);
+  const [imageClicked, setImageClicked] = useState<Blob | null>(null);
+
 
   //
 
@@ -46,22 +47,22 @@ const App = () => {
   }, []);
 
   // check when to click photo from the backend by API
-  useEffect(() => {
-    const intervalId = setInterval(async () => {
-      try {
-        let resBody = await fetch(BACKEND_URL);
+  // useEffect(() => {
+  //   const intervalId = setInterval(async () => {
+  //     try {
+  //       let resBody = await fetch(BACKEND_URL);
 
-        let response = await resBody.json();
+  //       let response = await resBody.json();
 
-        // console.log('🚀 ~ file: App.tsx:45 ~ response:', response);
-        setShouldClickPhoto(response.shouldClickPhoto);
-      } catch (error) {
-        console.log('🚀 ~ file: App.tsx:49 ~ error:', error);
-      }
-    }, 500);
+  //       // console.log('🚀 ~ file: App.tsx:45 ~ response:', response);
+  //       setShouldClickPhoto(response.shouldClickPhoto);
+  //     } catch (error) {
+  //       console.log('🚀 ~ file: App.tsx:49 ~ error:', error);
+  //     }
+  //   }, 500);
 
-    () => clearInterval(intervalId);
-  }, []);
+  //   () => clearInterval(intervalId);
+  // }, []);
 
   // click photo when required
   useEffect(() => {
@@ -77,21 +78,49 @@ const App = () => {
         // setTimeout(() => {
         // }, 500);
         if (shouldClickPhoto) {
-          let imageClicked = canvasEl.toDataURL('image/jpeg');
-          // console.log('🚀 ~ file: App.tsx:69 ~ useEffect ~ imageClicked:', imageClicked);
+          // let imageClicked = canvasEl.toDataURL('image/jpeg');
+          canvasEl.toBlob(
+            (blob) =>  {
+              setImageClicked(blob)
+              console.log(blob)
+              
+          const formData = new FormData()
+          if(imageClicked) {
+              console.log('formDat-append', imageClicked)
+          
+            formData.append('image_1', imageClicked)
+            // console.log(formData)
+          }
+          }
+          );
+          // setShouldClickPhoto(false)
+
+
+          const formData = new FormData()
+          if(imageClicked) {
+              console.log('formDat-append', imageClicked)
+          
+            formData.append('image_1', imageClicked)
+            // console.log(formData)
+          }
+          
+
+          console.log('🚀 ~ file: App.tsx:69 ~ useEffect ~ imageClicked:', imageClicked);
           (async () => {
             await fetch(`${BACKEND_URL}/upload`, {
-              method: 'post',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ image: imageClicked }),
+              method: 'POST',
+              // headers: {
+              //   'Content-Type': 'multipart/form-data',
+              //   // 'Content-Type': 'image/png',
+              // },
+              body: formData,
             });
           })();
+          setShouldClickPhoto(false)
         }
       }
     }
-  }, [shouldClickPhoto, videoEl]);
+  }, [shouldClickPhoto, videoEl, imageClicked]);
 
   // const testAPI = async () => {
   //   let resBody = await fetch(BACKEND_URL);
@@ -106,7 +135,11 @@ const App = () => {
           <div id='video-wrapper'>
             <video id='video-preview' autoPlay></video>
             <canvas id='canvasStream' />
-            {/* <button onClick={testAPI}>Test API</button> */}
+            {/* <img src = {} alt = 'image' style={{position : 'absolute', height : '100px', width : '100px'}}/> */}
+          <button onClick={()  => {
+            console.log("clicked")
+            setShouldClickPhoto(true)}} style={{ top: 20, zIndex: 20, height: '50px',width: '200px'}}>CLick Photo</button>
+
           </div>
         ) : (
           <p>Unable to capture camera stream</p>
